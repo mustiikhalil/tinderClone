@@ -12,6 +12,8 @@ class CardView: UIView {
     
     fileprivate let imageView = UIImageView(image: #imageLiteral(resourceName: "IMG_0292"))
     
+    fileprivate let threshold: CGFloat = 100
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         layer.cornerRadius = 10
@@ -27,7 +29,7 @@ class CardView: UIView {
     @objc fileprivate func handlePan(gesture: UIPanGestureRecognizer) {
         switch gesture.state {
         case .ended:
-            handleEnded()
+            handleEnded(gesture)
         case .changed:
             handleChange(gesture)
         default:
@@ -37,14 +39,29 @@ class CardView: UIView {
     
     fileprivate func handleChange(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: nil)
-        transform = CGAffineTransform(translationX: translation.x, y: translation.y)
+        
+        let degrees: CGFloat = translation.x / 20
+        let angel = degrees * .pi / 188
+        let roataionalTransformation = CGAffineTransform(rotationAngle: angel)
+        self.transform = roataionalTransformation.translatedBy(x: translation.x, y: translation.y)
     }
     
-    fileprivate func handleEnded() {
+    fileprivate func handleEnded(_ gesture: UIPanGestureRecognizer) {
+        let shouldDismiss = abs(gesture.translation(in: nil).x) > threshold ? true : false
+        
         UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-            self.transform = .identity
-        }) { (_) in
+            if shouldDismiss {
+                
+                let translationLocation: CGFloat = gesture.translation(in: nil).x > 0 ? 1000 : -1000
+                self.frame = CGRect(x: translationLocation, y: 0, width: self.frame.width, height: self.frame.height)
+                
+            } else {
+                self.transform = .identity
+            }
             
+        }) { (_) in
+            self.transform = .identity
+            self.frame = CGRect(x: 0, y: 0, width: self.superview!.frame.width, height: self.superview!.frame.height)
         }
     }
     

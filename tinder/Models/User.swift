@@ -11,7 +11,7 @@ struct User: ProducesCardViewModel {
     let name: String
     let age: Int
     let profession: String
-    let imageName: String
+    let imageNames: [String]
     
     func toCardViewModel() -> CardViewModel {
         
@@ -19,6 +19,6 @@ struct User: ProducesCardViewModel {
         attString.append(NSAttributedString(string: "  \(age)", attributes: [.foregroundColor: UIColor.white, .font: UIFont.systemFont(ofSize: 24, weight: .light)]))
         attString.append(NSAttributedString(string: "\n\(profession)", attributes: [.foregroundColor: UIColor.white, .font: UIFont.systemFont(ofSize: 20, weight: .light)]))
         
-        return CardViewModel(imageName: imageName, attString: attString, textAlligment: .left)
+        return CardViewModel(imageNames: imageNames, attString: attString, textAlligment: .left)
     }
 }

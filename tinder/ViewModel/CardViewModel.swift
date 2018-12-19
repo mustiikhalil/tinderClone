@@ -11,8 +11,34 @@ protocol ProducesCardViewModel {
     func toCardViewModel() -> CardViewModel
 }
 
-struct CardViewModel {
-    let imageName: String
+class CardViewModel {
+    
+    fileprivate var imageIndex = 0 {
+        didSet {
+            let img = UIImage(named: imageNames[imageIndex])
+            imageIndexObserver?(img, imageIndex)
+        }
+    }
+    
+    let imageNames: [String]
     let attString: NSMutableAttributedString
     let textAlligment: NSTextAlignment
+    
+    //Reactive programming
+    
+    var imageIndexObserver: ((UIImage?, Int) -> ())?
+    
+    init(imageNames images: [String], attString text: NSMutableAttributedString, textAlligment alligment: NSTextAlignment) {
+        imageNames = images
+        attString = text
+        textAlligment = alligment
+    }
+    
+    func advanceToNextPhoto() {
+        imageIndex = min(imageIndex + 1, imageNames.count - 1)
+    }
+    
+    func goToPreviousPhoto() {
+        imageIndex = max(0, imageIndex - 1)
+    }
 }

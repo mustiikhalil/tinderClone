@@ -28,15 +28,12 @@ class MainViewController: UIViewController {
         view.backgroundColor = .white
         setupLayout()
         setupDummyCards()
+        topView.settingIcon.addTarget(self, action: #selector(handleSettings), for: .touchUpInside)
     }
     
-    fileprivate func setupDummyCards() {
-        cardViewModel.forEach { (cardVM) in
-            let cardView = CardView(frame: .zero)
-            cardView.cardViewModel = cardVM
-            cardDeckView.addSubview(cardView)
-            cardView.fillSuperview()
-        }
+    @objc func handleSettings() {
+        let vc = RegistrationViewController()
+        present(vc, animated: true)
     }
     
     //MARK:- FilePrivate
@@ -49,6 +46,15 @@ class MainViewController: UIViewController {
         mainStackView.isLayoutMarginsRelativeArrangement = true
         mainStackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)
         mainStackView.bringSubviewToFront(cardDeckView)
+    }
+    
+    fileprivate func setupDummyCards() {
+        cardViewModel.forEach { (cardVM) in
+            let cardView = CardView(frame: .zero)
+            cardView.cardViewModel = cardVM
+            cardDeckView.addSubview(cardView)
+            cardView.fillSuperview()
+        }
     }
 
 }

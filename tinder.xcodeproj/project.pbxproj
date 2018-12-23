@@ -16,6 +16,7 @@
 		8A60D32021C8591700B37558 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8A60D31E21C8591700B37558 /* LaunchScreen.storyboard */; };
 		8A60D32B21C8591700B37558 /* tinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A60D32A21C8591700B37558 /* tinderTests.swift */; };
 		8A63BFD421C986E90035F145 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63BFD321C986E90035F145 /* MainViewController.swift */; };
+		8AB64C6B21CFE0C800E65996 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB64C6A21CFE0C800E65996 /* Bindable.swift */; };
 		8ACABEBC21CA45FA0060DB19 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACABEBB21CA45FA0060DB19 /* User.swift */; };
 		8ACABEC021CA4DF50060DB19 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACABEBF21CA4DF50060DB19 /* CardViewModel.swift */; };
 		8ACABEC221CA566A0060DB19 /* Advertiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACABEC121CA566A0060DB19 /* Advertiser.swift */; };
@@ -55,6 +56,7 @@
 		8A60D32A21C8591700B37558 /* tinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tinderTests.swift; sourceTree = "<group>"; };
 		8A60D32C21C8591700B37558 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8A63BFD321C986E90035F145 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		8AB64C6A21CFE0C800E65996 /* Bindable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bindable.swift; sourceTree = "<group>"; };
 		8ACABEBB21CA45FA0060DB19 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		8ACABEBF21CA4DF50060DB19 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		8ACABEC121CA566A0060DB19 /* Advertiser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Advertiser.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				8A60D31E21C8591700B37558 /* LaunchScreen.storyboard */,
 				8A4BD51521CFBC01003602B5 /* GoogleService-Info.plist */,
 				8A60D32121C8591700B37558 /* Info.plist */,
+				8AB64C6A21CFE0C800E65996 /* Bindable.swift */,
 			);
 			path = tinder;
 			sourceTree = "<group>";
@@ -411,6 +414,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8AB64C6B21CFE0C800E65996 /* Bindable.swift in Sources */,
 				8A60D31621C8591600B37558 /* AppDelegate.swift in Sources */,
 				8A4BD51421CFAF3A003602B5 /* RegistrationViewModel.swift in Sources */,
 				DF6ECDC821C8FDA600C2873A /* Extensions+UIView.swift in Sources */,

@@ -22,8 +22,12 @@ class RegistrationViewController: UIViewController {
         btn.setTitleColor(.black, for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 32, weight: .heavy)
         btn.heightAnchor.constraint(equalToConstant: 270).isActive = true
+        btn.widthAnchor.constraint(equalToConstant: 270).isActive = true
         btn.layer.cornerRadius = 16
         btn.translatesAutoresizingMaskIntoConstraints = true
+        btn.addTarget(self, action: #selector(handlePickingPhoto), for: .touchUpInside)
+        btn.imageView?.contentMode = .scaleAspectFill
+        btn.clipsToBounds = true
         return btn
     }()
     
@@ -81,13 +85,19 @@ class RegistrationViewController: UIViewController {
     lazy var mainStackView = UIStackView(arrangedSubviews: [selectProfileImage,
                                                    verticalStackView])
     
+    let registerHUD = JGProgressHUD(style: .dark)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         addGradient()
         setupLayout()
         setupTapGesture()
-        setupNotificationObservers()
         setupRegistrationViewModel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupNotificationObservers()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -115,17 +125,17 @@ class RegistrationViewController: UIViewController {
 extension RegistrationViewController {
     
     @objc func handleSignUp() {
-        guard let email = emailNameTextField.text, let pwd = passwordNameTextField.text else { return }
-        Auth.auth().createUser(withEmail: email, password: pwd) { (res, err) in
-            if let error = err {
-                self.showhud(withError: error)
+        handleTapDismiss()
+        registrationVM.preformRegistration { [unowned self] (err) in
+            if let err = err {
+                self.showhud(withError: err)
                 return
             }
-            print("User registered successfully: ", res?.user.uid)
         }
     }
     
     func showhud(withError err: Error) {
+        registerHUD.dismiss()
         let hud = JGProgressHUD(style: .dark)
         hud.textLabel.text = "Failed Registration"
         hud.detailTextLabel.text =  err.localizedDescription
@@ -140,8 +150,20 @@ extension RegistrationViewController {
 extension RegistrationViewController {
     
     func setupRegistrationViewModel() {
-        registrationVM.isFormValidObserver = { [unowned self] (isFormValid) in
+        registrationVM.isValid.bind { [unowned self] (isValid) in
+            guard let isFormValid = isValid else { return }
             self.handleButtonChnageAfterValidity(isFormValid: isFormValid)
+        }
+        registrationVM.image.bind { [unowned self] (img) in
+            self.selectProfileImage.setImage(img?.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
+        registrationVM.isRegistering.bind { [unowned self] (isRegistering) in
+            if isRegistering == true {
+                self.registerHUD.textLabel.text = "Registering"
+                self.registerHUD.show(in: self.view)
+            } else {
+                self.registerHUD.dismiss()
+            }
         }
     }
     
@@ -193,6 +215,27 @@ extension RegistrationViewController {
         view.endEditing(true)
     }
     
+}
+
+//MARK:- PhotoPicker Delegate
+
+extension RegistrationViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    @objc func handlePickingPhoto() {
+        let vc = UIImagePickerController()
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let img = info[.originalImage] as? UIImage
+        registrationVM.image.value = img
+        dismiss(animated: true)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true)
+    }
 }
 
 //MARK:- UI extension

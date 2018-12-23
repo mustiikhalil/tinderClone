@@ -107,14 +107,15 @@ class RegistrationViewController: UIViewController {
             mainStackView.axis = .vertical
         }
     }
+    
 }
 
-//Mark:- Firebase extension
+//MARK:- Firebase extension
 
 extension RegistrationViewController {
     
     @objc func handleSignUp() {
-        guard let email = emailNameTextField.text, let pwd = passwordNameTextField.text, let fullName = fullNameTextField.text else { return }
+        guard let email = emailNameTextField.text, let pwd = passwordNameTextField.text else { return }
         Auth.auth().createUser(withEmail: email, password: pwd) { (res, err) in
             if let error = err {
                 self.showhud(withError: error)
@@ -131,6 +132,7 @@ extension RegistrationViewController {
         hud.show(in: view)
         hud.dismiss(afterDelay: 2, animated: true)
     }
+    
 }
 
 //MARK:- ViewModel extension
@@ -157,6 +159,7 @@ extension RegistrationViewController {
         signUpButton.isEnabled = isFormValid
         signUpButton.backgroundColor = isFormValid ? #colorLiteral(red: 0.8128934503, green: 0.1175386086, blue: 0.3345344663, alpha: 1) : .lightGray
     }
+    
 }
 
 //MARK:- Keyboard notifications extension

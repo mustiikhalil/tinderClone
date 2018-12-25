@@ -31,7 +31,7 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLayout()
-//        setupDummyCards()
+//        setupCards()
         fetchUsersFromFireStore()
     }
     
@@ -54,7 +54,7 @@ class MainViewController: UIViewController {
         topView.settingIcon.addTarget(self, action: #selector(handleSettings), for: .touchUpInside)
     }
     
-    fileprivate func setupDummyCards() {
+    fileprivate func setupCards() {
         cardViewModels.forEach { (cardVM) in
             let cardView = CardView(frame: .zero)
             cardView.cardViewModel = cardVM
@@ -64,7 +64,8 @@ class MainViewController: UIViewController {
     }
     
     fileprivate func fetchUsersFromFireStore() {
-        Firestore.firestore().collection("Users").getDocuments { (snapshot, err) in
+        let query = Firestore.firestore().collection("Users")
+        query.getDocuments { (snapshot, err) in
             if let err = err {
                 print("failed to fetch users: ", err.localizedDescription)
                 return
@@ -74,7 +75,7 @@ class MainViewController: UIViewController {
                 let user = User(dictionary: userDictonary)
                 self.cardViewModels.append(user.toCardViewModel())
             })
-            self.setupDummyCards()
+            self.setupCards()
         }
     }
 }

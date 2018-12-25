@@ -15,8 +15,7 @@ class CardViewModel {
     
     fileprivate var imageIndex = 0 {
         didSet {
-            let img = UIImage(named: imageNames[imageIndex])
-            imageIndexObserver?(img, imageIndex)
+            imageIndexObserver?(imageNames[imageIndex], imageIndex)
         }
     }
     
@@ -26,7 +25,7 @@ class CardViewModel {
     
     //Reactive programming
     
-    var imageIndexObserver: ((UIImage?, Int) -> ())?
+    var imageIndexObserver: ((String?, Int) -> ())?
     
     init(imageNames images: [String], attString text: NSMutableAttributedString, textAlligment alligment: NSTextAlignment) {
         imageNames = images

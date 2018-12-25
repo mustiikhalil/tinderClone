@@ -14,16 +14,6 @@ class MainViewController: UIViewController {
     private let cardDeckView = UIView()
     private let topView = TopNavigationStackView()
     private let bottomStackView = HomeButtonControlsStackView()
-
-//    let cardViewModel: [CardViewModel] = {
-//        let produces = [
-//            Advertiser(title: "", brandName: "Order now", posterImageName: "ad"),
-//            User(name: "katie", age: 20, profession: "Student", imageNames: ["girl2", "girl2"]),
-//            User(name: "Sky", age: 24, profession: "Streamer", imageNames: ["IMG_0292", "sky2", "sky3"]),
-//            ] as [ProducesCardViewModel]
-//
-//        return produces.map{ $0.toCardViewModel() }
-//    }()
     
     var cardViewModels: [CardViewModel] = []
     
@@ -31,7 +21,6 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLayout()
-//        setupCards()
         fetchUsersFromFireStore()
     }
     

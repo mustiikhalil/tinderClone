@@ -68,7 +68,7 @@ extension MainViewController {
     }
     
     @objc func handleSettings() {
-        let vc = RegistrationViewController()
+        let vc = UINavigationController(rootViewController: SettingsViewController())
         present(vc, animated: true)
     }
     

@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import Firebase
+import JGProgressHUD
+import SDWebImage
 
 class CustomImagePicker: UIImagePickerController {
     
@@ -14,6 +17,8 @@ class CustomImagePicker: UIImagePickerController {
 
 
 class SettingsViewController: UITableViewController {
+    
+    var user: User?
     
     private lazy var imageButton1 = createButton(selector: #selector(handleSelectPhoto))
     private lazy var imageButton2 = createButton(selector: #selector(handleSelectPhoto))
@@ -41,6 +46,36 @@ class SettingsViewController: UITableViewController {
         tableView.backgroundColor = UIColor(white: 0.95, alpha: 1)
         tableView.tableFooterView = UIView()
         tableView.keyboardDismissMode = .interactive
+        fetchCurrentUser()
+    }
+    
+    fileprivate func fetchCurrentUser() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore().collection("Users").document(uid).getDocument { (snapshot, error) in
+            if let err = error {
+                print(err.localizedDescription)
+                return
+            }
+            guard let dictonary = snapshot?.data() else { return }
+            self.user = User(dictionary: dictonary)
+            self.loadUserPhotos()
+            self.tableView.reloadData()
+        }
+    }
+    
+    fileprivate func loadUserPhotos() {
+        guard let photos = user?.imageNames else { return }
+        var buttonArray = [imageButton1, imageButton2, imageButton3]
+        
+        for i in 0..<photos.count {
+            if i >= buttonArray.count {
+                break
+            }
+            guard let url = URL(string: photos[i]) else { return }
+            SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
+                buttonArray[i].setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+            }
+        }
     }
     
 }
@@ -80,7 +115,8 @@ extension SettingsViewController {
         }
         let headerLable = HeaderLabel()
         headerLable.font = UIFont.boldSystemFont(ofSize: 16)
-        headerLable.text = getSectionText(section: section)
+        let (section, _) = getSectionText(section: section)
+        headerLable.text = section
         return headerLable
     }
     
@@ -94,7 +130,9 @@ extension SettingsViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = SettingsCell(style: .default, reuseIdentifier: nil)
-        cell.textField.placeholder = getPlaceHolderText(section: indexPath.section)
+        let (placeHolder, text) = getPlaceHolderText(section: indexPath.section)
+        cell.textField.placeholder = placeHolder
+        cell.textField.text = text
         return cell
     }
     
@@ -135,21 +173,26 @@ extension SettingsViewController {
         return b
     }
     
-    fileprivate func getSectionText(section: Int) -> String {
+    fileprivate func getSectionText(section: Int) -> (String, String) {
         switch section {
         case 1:
-            return "Name"
+            return ("Name", user?.name ?? "")
         case 2:
-            return "Profession"
+            return ("Profession", user?.profession ?? "")
         case 3:
-            return "Age"
+            if let age = user?.age {
+                return ("Age", String(age))
+            }
+            return ("Age", "")
+            
         default:
-            return "Bio"
+            return ("Bio", user?.bio ?? "")
         }
     }
     
-    fileprivate func getPlaceHolderText(section: Int) -> String {
-       return "Enter " + getSectionText(section: section)
+    fileprivate func getPlaceHolderText(section: Int) -> (String, String) {
+        let (section, details) = getSectionText(section: section)
+       return ("Enter " + section, details)
     }
     
 }

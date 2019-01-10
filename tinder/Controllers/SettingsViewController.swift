@@ -11,7 +11,6 @@ import JGProgressHUD
 import SDWebImage
 
 class CustomImagePicker: UIImagePickerController {
-    
     var imageButton: UIButton?
 }
 
@@ -47,7 +46,20 @@ class SettingsViewController: UITableViewController {
         tableView.tableFooterView = UIView()
         tableView.keyboardDismissMode = .interactive
         fetchCurrentUser()
+        setupOberver()
     }
+    
+    private let ageRange = AgeRangeVM()
+    
+    func setupOberver(){
+        ageRange.bindableAge.bind { [unowned self] (args) in
+            let index = IndexPath(item: 0, section: 5)
+            let cell = self.tableView.cellForRow(at: index) as! AgeRangeCell
+            guard let age = args else { return }
+            cell.setupUI(min: age.min, max: age.max)
+        }
+    }
+    
     
     fileprivate func fetchCurrentUser() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
@@ -94,6 +106,31 @@ extension SettingsViewController: UIImagePickerControllerDelegate, UINavigationC
         let button = (picker as? CustomImagePicker)?.imageButton
         button?.setImage(selectedImage?.withRenderingMode(.alwaysOriginal), for: .normal)
         dismiss(animated: true)
+        
+        let filename = UUID().uuidString
+        
+        let ref = Storage.storage().reference(withPath: "/images/\(filename)")
+        guard let uploadedData = selectedImage?.jpegData(compressionQuality: 0.7) else { return }
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Uploading image"
+        hud.show(in: view)
+        ref.putData(uploadedData, metadata: nil) { (metadata, error) in
+            hud.dismiss(animated: true)
+            if let err = error {
+                print("settingsVC - error uploading image: ", err.localizedDescription)
+                return
+            }
+            print("finished uploading image")
+            ref.downloadURL(completion: { (url, error) in
+                if let err = error {
+                    print("settingVC - error getting url: ", err.localizedDescription)
+                    return
+                }
+                if let stringUrl = url?.absoluteString {
+                    self.user?.imageNames.append(stringUrl)
+                }
+            })
+        }
     }
     
 }
@@ -115,13 +152,23 @@ extension SettingsViewController {
         }
         let headerLable = HeaderLabel()
         headerLable.font = UIFont.boldSystemFont(ofSize: 16)
-        let (section, _) = getSectionText(section: section)
-        headerLable.text = section
+        switch section {
+        case 1:
+            headerLable.text = "Username"
+        case 2:
+            headerLable.text = "Profession"
+        case 3:
+            headerLable.text = "Age"
+        case 4:
+            headerLable.text = "Bio"
+        default:
+            headerLable.text = "Age Range"
+        }
         return headerLable
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 5
+        return 6
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -129,11 +176,62 @@ extension SettingsViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if indexPath.section == 5 {
+            let rangeCell = AgeRangeCell(user: user)
+            rangeCell.minSlider.addTarget(self, action: #selector(handleMinAgeChange), for: .valueChanged)
+            rangeCell.maxSlider.addTarget(self, action: #selector(handleMaxAgeChange), for: .valueChanged)
+            return rangeCell
+        }
+        
         let cell = SettingsCell(style: .default, reuseIdentifier: nil)
-        let (placeHolder, text) = getPlaceHolderText(section: indexPath.section)
-        cell.textField.placeholder = placeHolder
-        cell.textField.text = text
+        switch indexPath.section {
+        case 1:
+            cell.textField.placeholder = "Enter Username"
+            cell.textField.text = user?.name
+            cell.textField.addTarget(self, action: #selector(handleNameChange), for: .editingChanged)
+        case 2:
+            cell.textField.placeholder = "Enter Profession"
+            cell.textField.text = user?.profession
+            cell.textField.addTarget(self, action: #selector(handleProfessionChange), for: .editingChanged)
+        case 3:
+            cell.textField.placeholder = "Enter Age"
+            if let age = user?.age {
+                cell.textField.text = String(age)
+            }
+            cell.textField.addTarget(self, action: #selector(handleAgeChange), for: .editingChanged)
+        default:
+            cell.textField.placeholder = "Enter Bio"
+            cell.textField.text = user?.bio
+            cell.textField.addTarget(self, action: #selector(handleBioChange), for: .editingChanged)
+        }
         return cell
+    }
+    
+    @objc fileprivate func handleNameChange(textField: UITextField) {
+        self.user?.name = textField.text ?? ""
+    }
+    
+    @objc fileprivate func handleAgeChange(textField: UITextField) {
+        self.user?.age = Int(textField.text ?? "")
+    }
+    
+    @objc fileprivate func handleProfessionChange(textField: UITextField) {
+        self.user?.profession = textField.text ?? ""
+    }
+    
+    @objc fileprivate func handleBioChange(textField: UITextField) {
+        self.user?.bio = textField.text ?? ""
+    }
+    
+    @objc fileprivate func handleMinAgeChange(slider: UISlider) {
+        ageRange.minAge = Int(slider.value)
+        user?.minSeekingAge = Int(slider.value)
+    }
+    
+    @objc fileprivate func handleMaxAgeChange(slider: UISlider) {
+        ageRange.maxAge = Int(slider.value)
+        user?.maxSeekingAge = Int(slider.value)
     }
     
 }
@@ -146,6 +244,29 @@ extension SettingsViewController {
         dismiss(animated: true)
     }
     
+    @objc fileprivate func handleSave() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let data: [String: Any] = [
+            "uid": uid,
+            "fullname": user?.name ?? "",
+            "age": user?.age ?? -1,
+            "profession": user?.profession ?? "",
+            "images": user?.imageNames,
+            "bio": user?.bio,
+            "minSeekingAge": user?.minSeekingAge ?? -1,
+            "maxSeekingAge": user?.maxSeekingAge ?? -1,
+            ]
+        
+        Firestore.firestore().collection("Users").document(uid).setData(data) { (error) in
+            if let err = error {
+                print(err.localizedDescription)
+                return
+            }
+            self.dismiss(animated: true)
+        }
+    }
+
 }
 
 // MARK:- UI
@@ -157,8 +278,8 @@ extension SettingsViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel)),
-            UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
+            UIBarButtonItem(title: "LogOut", style: .plain, target: self, action: #selector(handleCancel)),
+            UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleSave))
         ]
     }
     
@@ -171,28 +292,6 @@ extension SettingsViewController {
         b.layer.cornerRadius = 8
         b.clipsToBounds = true
         return b
-    }
-    
-    fileprivate func getSectionText(section: Int) -> (String, String) {
-        switch section {
-        case 1:
-            return ("Name", user?.name ?? "")
-        case 2:
-            return ("Profession", user?.profession ?? "")
-        case 3:
-            if let age = user?.age {
-                return ("Age", String(age))
-            }
-            return ("Age", "")
-            
-        default:
-            return ("Bio", user?.bio ?? "")
-        }
-    }
-    
-    fileprivate func getPlaceHolderText(section: Int) -> (String, String) {
-        let (section, details) = getSectionText(section: section)
-       return ("Enter " + section, details)
     }
     
 }

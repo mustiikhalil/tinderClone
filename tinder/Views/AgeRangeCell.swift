@@ -88,7 +88,7 @@ class AgeRangeVM {
         get { return age.max}
         set {
             if newValue < minAge { minAge = newValue - 1 }
-            age = Age(max: min(100, newValue), min: age.min)
+            age = Age(max: min(50, newValue), min: age.min)
             bindableAge.value = age
         }
     }

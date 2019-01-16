@@ -13,6 +13,8 @@ class RegistrationViewController: UIViewController {
     
     fileprivate let registrationVM = RegistrationViewModel()
     
+    var loginControllerDelegate: LoginControllerDelegate?
+    
     fileprivate let gradientLayer = CAGradientLayer()
     
     fileprivate let selectProfileImage: UIButton = {
@@ -21,8 +23,6 @@ class RegistrationViewController: UIViewController {
         btn.backgroundColor = .white
         btn.setTitleColor(.black, for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 32, weight: .heavy)
-        btn.heightAnchor.constraint(equalToConstant: 270).isActive = true
-        btn.widthAnchor.constraint(equalToConstant: 270).isActive = true
         btn.layer.cornerRadius = 16
         btn.translatesAutoresizingMaskIntoConstraints = true
         btn.addTarget(self, action: #selector(handlePickingPhoto), for: .touchUpInside)
@@ -71,6 +71,15 @@ class RegistrationViewController: UIViewController {
         return btn
     }()
     
+    fileprivate let goToLogin: UIButton = {
+        let b = UIButton(type: .system)
+        b.setTitle("Go to Login", for: .normal)
+        b.setTitleColor(.white, for: .normal)
+        b.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
+        b.addTarget(self, action: #selector(handleOpenSignIn), for: .touchUpInside)
+        return b
+    }()
+    
     lazy var verticalStackView: UIStackView = {
         let sv = UIStackView(arrangedSubviews: [fullNameTextField,
                                                 emailNameTextField,
@@ -81,6 +90,10 @@ class RegistrationViewController: UIViewController {
         sv.spacing = 8
         return sv
     }()
+    
+    lazy var selectPhotoButtonHeightAnchor = selectProfileImage.heightAnchor.constraint(equalToConstant: 270)
+    
+    lazy var selectPhotoButtonWidthAnchor = selectProfileImage.widthAnchor.constraint(equalToConstant: 270)
     
     lazy var mainStackView = UIStackView(arrangedSubviews: [selectProfileImage,
                                                    verticalStackView])
@@ -113,8 +126,14 @@ class RegistrationViewController: UIViewController {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if traitCollection.verticalSizeClass == .compact {
             mainStackView.axis = .horizontal
+            verticalStackView.distribution = .fillEqually
+            selectPhotoButtonHeightAnchor.isActive = false
+            selectPhotoButtonWidthAnchor.isActive = true
         } else {
             mainStackView.axis = .vertical
+            verticalStackView.distribution = .fill
+            selectPhotoButtonWidthAnchor.isActive = false
+            selectPhotoButtonHeightAnchor.isActive = true
         }
     }
     
@@ -131,6 +150,9 @@ extension RegistrationViewController {
                 self.showhud(withError: err)
                 return
             }
+            self.dismiss(animated: true, completion: {
+                self.loginControllerDelegate?.didFinishLogin()
+            })
         }
     }
     
@@ -242,14 +264,25 @@ extension RegistrationViewController: UIImagePickerControllerDelegate, UINavigat
 
 extension RegistrationViewController {
     
+    @objc fileprivate func handleOpenSignIn() {
+        let loginVC = LoginController()
+        loginVC.loginControllerDelegate = loginControllerDelegate
+        navigationController?.pushViewController(loginVC, animated: true)
+    }
+    
     fileprivate func setupLayout() {
+        
+        navigationController?.isNavigationBarHidden = true
         
         mainStackView.axis = .vertical
         mainStackView.spacing = 8
         view.addSubview(mainStackView)
-        mainStackView.anchor(top: nil, leading: view.safeAreaLayoutGuide.leadingAnchor, bottom: nil, trailing: view.safeAreaLayoutGuide.trailingAnchor, padding: .init(top: 0, left: 32, bottom: 0, right: 32))
+        
+        mainStackView.anchor(top: nil, leading: view.leadingAnchor, bottom: nil, trailing: view.trailingAnchor, padding: .init(top: 0, left: 32, bottom: 0, right: 32))
         mainStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        selectProfileImage.widthAnchor.constraint(equalToConstant: 275).isActive = true
+        
+        view.addSubview(goToLogin)
+        goToLogin.anchor(top: nil, leading: view.leadingAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, trailing: view.trailingAnchor)
     }
     
     fileprivate func setupTapGesture() {

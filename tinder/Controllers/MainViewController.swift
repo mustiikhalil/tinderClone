@@ -9,8 +9,9 @@ import UIKit
 import Firebase
 import JGProgressHUD
 
-class MainViewController: UIViewController {
-    
+class MainViewController: UIViewController, LoginControllerDelegate {
+
+    var user: User?
     var lastFetchedUser: User?
     
     private let cardDeckView = UIView()
@@ -26,20 +27,52 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLayout()
-        fetchUsersFromFireStore()
+        fetchCurrentUser()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if Auth.auth().currentUser == nil {
+            let lVC = RegistrationViewController()
+            lVC.loginControllerDelegate = self
+            let registrationVC = UINavigationController(rootViewController: lVC)
+            present(registrationVC, animated: true)
+        }
+    }
+    
+    func didFinishLogin() {
+        lastFetchedUser = nil
+        fetchCurrentUser()
     }
     
 }
 
 // MARK:- Firebase
 
-extension MainViewController {
+extension MainViewController: SettingsControllerDelegate {
+    
+    func didSaveSettings() {
+        fetchCurrentUser()
+    }
+    
+    fileprivate func fetchCurrentUser() {
+        NetworkManager.shared.fetchCurrentUser { (user) in
+            if let u = user {
+                self.user = u
+                self.fetchUsersFromFireStore()
+            }
+        }
+    }
     
     fileprivate func fetchUsersFromFireStore() {
         
         progressHUD.show(in: view)
+//        let minAge = user?.minSeekingAge ?? 0
+//        let maxAge = user?.maxSeekingAge ?? 100
         
         let query = Firestore.firestore().collection("Users").order(by: "uid").start(after: [lastFetchedUser?.uid ?? ""]).limit(to: 2)
+        // whereField("age", isLessThanOrEqualTo: maxAge).whereField("age", isGreaterThanOrEqualTo: minAge) filtering
         // pagenation
         
         query.getDocuments { (snapshot, err) in
@@ -48,6 +81,7 @@ extension MainViewController {
                 print("failed to fetch users: ", err.localizedDescription)
                 return
             }
+            
             snapshot?.documents.forEach({ (documentSnap) in
                 let userDictonary = documentSnap.data()
                 let user = User(dictionary: userDictonary)
@@ -68,7 +102,9 @@ extension MainViewController {
     }
     
     @objc func handleSettings() {
-        let vc = UINavigationController(rootViewController: SettingsViewController())
+        let settingsVC = SettingsViewController()
+        settingsVC.delegate = self
+        let vc = UINavigationController(rootViewController: settingsVC)
         present(vc, animated: true)
     }
     

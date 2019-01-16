@@ -10,6 +10,9 @@ import Firebase
 import JGProgressHUD
 import SDWebImage
 
+protocol SettingsControllerDelegate {
+    func didSaveSettings()
+}
 class CustomImagePicker: UIImagePickerController {
     var imageButton: UIButton?
 }
@@ -18,6 +21,7 @@ class CustomImagePicker: UIImagePickerController {
 class SettingsViewController: UITableViewController {
     
     var user: User?
+    var delegate: SettingsControllerDelegate?
     
     private lazy var imageButton1 = createButton(selector: #selector(handleSelectPhoto))
     private lazy var imageButton2 = createButton(selector: #selector(handleSelectPhoto))
@@ -62,16 +66,12 @@ class SettingsViewController: UITableViewController {
     
     
     fileprivate func fetchCurrentUser() {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        Firestore.firestore().collection("Users").document(uid).getDocument { (snapshot, error) in
-            if let err = error {
-                print(err.localizedDescription)
-                return
+        NetworkManager.shared.fetchCurrentUser { (user) in
+            if let u = user {
+                self.user = u
+                self.loadUserPhotos()
+                self.tableView.reloadData()
             }
-            guard let dictonary = snapshot?.data() else { return }
-            self.user = User(dictionary: dictonary)
-            self.loadUserPhotos()
-            self.tableView.reloadData()
         }
     }
     
@@ -240,6 +240,11 @@ extension SettingsViewController {
 
 extension SettingsViewController {
     
+    @objc fileprivate func handleLogout() {
+        try? Auth.auth().signOut()
+        dismiss(animated: true)
+    }
+    
     @objc fileprivate func handleCancel() {
         dismiss(animated: true)
     }
@@ -263,7 +268,9 @@ extension SettingsViewController {
                 print(err.localizedDescription)
                 return
             }
-            self.dismiss(animated: true)
+            self.dismiss(animated: true, completion: {
+                self.delegate?.didSaveSettings()
+            })
         }
     }
 
@@ -278,10 +285,11 @@ extension SettingsViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(title: "LogOut", style: .plain, target: self, action: #selector(handleCancel)),
+            UIBarButtonItem(title: "LogOut", style: .plain, target: self, action: #selector(handleLogout)),
             UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleSave))
         ]
     }
+    
     
     func createButton(selector: Selector) -> UIButton {
         let b = UIButton(type: .system)

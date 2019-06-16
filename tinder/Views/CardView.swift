@@ -8,10 +8,15 @@
 import UIKit
 import SDWebImage
 
+protocol CardViewProtocol {
+    func shouldPresentDetailsFor()
+}
+
 class CardView: UIView {
     
     fileprivate let threshold: CGFloat = 100
     fileprivate let deselectedColor = UIColor(white: 0, alpha: 0.1)
+    fileprivate var delegate: CardViewProtocol?
     
     var cardViewModel: CardViewModel! {
         didSet {
@@ -34,8 +39,17 @@ class CardView: UIView {
     fileprivate let gradientLayer = CAGradientLayer()
     fileprivate let barsStackView = UIStackView()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    fileprivate lazy var moreInfoButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setImage(#imageLiteral(resourceName: "info").withRenderingMode(.alwaysOriginal), for: .normal)
+        btn.imageView?.contentMode = .scaleAspectFit
+        btn.addTarget(self, action: #selector(presentDetailsPage), for: .touchUpInside)
+        return btn
+    }()
+    
+    init(delegate: CardViewProtocol) {
+        self.delegate = delegate
+        super.init(frame: .zero)
         setupView()
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         addGestureRecognizer(panGesture)
@@ -88,6 +102,10 @@ class CardView: UIView {
         }
     }
     
+    @objc func presentDetailsPage() {
+        delegate?.shouldPresentDetailsFor()
+    }
+    
     fileprivate func handleChange(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: nil)
         
@@ -135,6 +153,9 @@ class CardView: UIView {
         infoLabel.anchor(top: nil, leading: leadingAnchor, bottom: bottomAnchor, trailing: trailingAnchor, padding: .init(top: 0, left: 16, bottom: 16, right: 16))
         infoLabel.numberOfLines = 0
         imageView.fillSuperview()
+        
+        addSubview(moreInfoButton)
+        moreInfoButton.anchor(top: nil, leading: nil, bottom: bottomAnchor, trailing: trailingAnchor, padding: .init(top: 0, left: 0, bottom: 16, right: 16), size: .init(width: 44, height: 44))
     }
     
     fileprivate func setupBarStackView() {

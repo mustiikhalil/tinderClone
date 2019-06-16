@@ -71,7 +71,7 @@ extension MainViewController: SettingsControllerDelegate {
 //        let minAge = user?.minSeekingAge ?? 0
 //        let maxAge = user?.maxSeekingAge ?? 100
         
-        let query = Firestore.firestore().collection("Users").order(by: "uid").start(after: [lastFetchedUser?.uid ?? ""]).limit(to: 2)
+        let query = Firestore.firestore().collection("Users").order(by: "uid").start(after: [lastFetchedUser?.uid ?? ""]).limit(to: 3)
         // whereField("age", isLessThanOrEqualTo: maxAge).whereField("age", isGreaterThanOrEqualTo: minAge) filtering
         // pagenation
         
@@ -85,8 +85,10 @@ extension MainViewController: SettingsControllerDelegate {
             snapshot?.documents.forEach({ (documentSnap) in
                 let userDictonary = documentSnap.data()
                 let user = User(dictionary: userDictonary)
-                self.lastFetchedUser = user
-                self.setupCards(user: user)
+                if user.uid != Auth.auth().currentUser?.uid {
+                    self.lastFetchedUser = user
+                    self.setupCards(user: user)
+                }
             })
         }
     }
@@ -129,11 +131,20 @@ extension MainViewController {
     }
     
     fileprivate func setupCards(user: User) {
-        let cardView = CardView(frame: .zero)
+        let cardView = CardView(delegate: self)
         cardView.cardViewModel = user.toCardViewModel()
         cardDeckView.addSubview(cardView)
         cardDeckView.sendSubviewToBack(cardView)
         cardView.fillSuperview()
+    }
+    
+}
+
+extension MainViewController: CardViewProtocol {
+    
+    func shouldPresentDetailsFor() {
+        let userDetailsController = UserDetailsController()
+        present(userDetailsController, animated: true)
     }
     
 }

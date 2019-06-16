@@ -25,6 +25,7 @@
 		8ACABEBC21CA45FA0060DB19 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACABEBB21CA45FA0060DB19 /* User.swift */; };
 		8ACABEC021CA4DF50060DB19 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACABEBF21CA4DF50060DB19 /* CardViewModel.swift */; };
 		8ACABEC221CA566A0060DB19 /* Advertiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACABEC121CA566A0060DB19 /* Advertiser.swift */; };
+		8ACAEC8922B693CB00B222E2 /* UserDetailsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACAEC8822B693CB00B222E2 /* UserDetailsController.swift */; };
 		8AE10C9421CC1F7E00339153 /* RegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE10C9321CC1F7E00339153 /* RegistrationViewController.swift */; };
 		8AE10C9621CC2A6F00339153 /* RegistrationTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE10C9521CC2A6F00339153 /* RegistrationTextField.swift */; };
 		8AFAE94421DF6D4700106B07 /* SettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFAE94321DF6D4700106B07 /* SettingsCell.swift */; };
@@ -71,6 +72,7 @@
 		8ACABEBB21CA45FA0060DB19 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		8ACABEBF21CA4DF50060DB19 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		8ACABEC121CA566A0060DB19 /* Advertiser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Advertiser.swift; sourceTree = "<group>"; };
+		8ACAEC8822B693CB00B222E2 /* UserDetailsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailsController.swift; sourceTree = "<group>"; };
 		8AE10C9321CC1F7E00339153 /* RegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewController.swift; sourceTree = "<group>"; };
 		8AE10C9521CC2A6F00339153 /* RegistrationTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationTextField.swift; sourceTree = "<group>"; };
 		8AFAE94321DF6D4700106B07 /* SettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				8A9B372721EF955F00AAE4CF /* LoginController.swift */,
 				8AE10C9321CC1F7E00339153 /* RegistrationViewController.swift */,
 				8A0EC66921D9191000E2CC7A /* SettingsViewController.swift */,
+				8ACAEC8822B693CB00B222E2 /* UserDetailsController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -439,6 +442,7 @@
 				8AE10C9621CC2A6F00339153 /* RegistrationTextField.swift in Sources */,
 				8ACABEC221CA566A0060DB19 /* Advertiser.swift in Sources */,
 				DF6ECDCB21C902B500C2873A /* HomeButtonControlsStackView.swift in Sources */,
+				8ACAEC8922B693CB00B222E2 /* UserDetailsController.swift in Sources */,
 				8A9CADD421E78D9500A1FBCE /* AgeRangeCell.swift in Sources */,
 				8AE10C9421CC1F7E00339153 /* RegistrationViewController.swift in Sources */,
 				8A63BFD421C986E90035F145 /* MainViewController.swift in Sources */,

@@ -25,7 +25,7 @@ class RegistrationTextField: UITextField {
         return .init(width: 0, height: 50)
     }
     
-    init(padding padding: CGFloat) {
+    init(padding: CGFloat) {
         self.padding = padding
         super.init(frame: .zero)
         layer.cornerRadius = 25

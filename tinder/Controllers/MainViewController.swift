@@ -33,9 +33,16 @@ class MainViewController: UIViewController, LoginControllerDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        DispatchQueue.main.async {
+            self.checkIfUserIsLoggedIn()
+        }
+    }
+    
+    func checkIfUserIsLoggedIn() {
         if Auth.auth().currentUser == nil {
             let lVC = RegistrationViewController()
             lVC.loginControllerDelegate = self
+            
             let registrationVC = UINavigationController(rootViewController: lVC)
             present(registrationVC, animated: true)
         }
@@ -142,8 +149,8 @@ extension MainViewController {
 
 extension MainViewController: CardViewProtocol {
     
-    func shouldPresentDetailsFor() {
-        let userDetailsController = UserDetailsController()
+    func shouldPresentDetailsFor(_ viewModel: CardViewModel) {
+        let userDetailsController = UserDetailsController(user: viewModel)
         present(userDetailsController, animated: true)
     }
     

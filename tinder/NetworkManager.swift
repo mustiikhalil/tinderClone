@@ -25,7 +25,9 @@ class NetworkManager {
                 return
             }
             let user = User(dictionary: dictonary)
-            completion(user)
+            DispatchQueue.main.async {
+                completion(user)
+            }
         }
     }
 }

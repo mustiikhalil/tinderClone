@@ -9,7 +9,7 @@ import UIKit
 import SDWebImage
 
 protocol CardViewProtocol {
-    func shouldPresentDetailsFor()
+    func shouldPresentDetailsFor(_ viewModel: CardViewModel)
 }
 
 class CardView: UIView {
@@ -23,6 +23,7 @@ class CardView: UIView {
             let imageName = cardViewModel.imageNames.first ?? ""
             setupImage(url: imageName)
             infoLabel.attributedText = cardViewModel.attString
+            infoLabel.textColor = .white
             infoLabel.textAlignment = cardViewModel.textAlligment
             setupbars()
             setupImageIndexObserver()
@@ -103,7 +104,7 @@ class CardView: UIView {
     }
     
     @objc func presentDetailsPage() {
-        delegate?.shouldPresentDetailsFor()
+        delegate?.shouldPresentDetailsFor(cardViewModel)
     }
     
     fileprivate func handleChange(_ gesture: UIPanGestureRecognizer) {

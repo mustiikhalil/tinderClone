@@ -56,6 +56,29 @@ extension UIView {
         return anchoredConstraints
     }
     
+    enum Edges {
+        case top, bottom, leading, trailing
+    }
+    
+    func anchorinSuperView(disregarding: Edges..., padding: UIEdgeInsets = .zero) {
+        translatesAutoresizingMaskIntoConstraints = false
+        if let superviewTopAnchor = superview?.topAnchor, !disregarding.contains(.top) {
+            topAnchor.constraint(equalTo: superviewTopAnchor, constant: padding.top).isActive = true
+        }
+        
+        if let superviewBottomAnchor = superview?.bottomAnchor, !disregarding.contains(.bottom) {
+            bottomAnchor.constraint(equalTo: superviewBottomAnchor, constant: -padding.bottom).isActive = true
+        }
+        
+        if let superviewLeadingAnchor = superview?.leadingAnchor, !disregarding.contains(.leading) {
+            leadingAnchor.constraint(equalTo: superviewLeadingAnchor, constant: padding.left).isActive = true
+        }
+        
+        if let superviewTrailingAnchor = superview?.trailingAnchor, !disregarding.contains(.trailing) {
+            trailingAnchor.constraint(equalTo: superviewTrailingAnchor, constant: -padding.right).isActive = true
+        }
+    }
+    
     func fillSuperview(padding: UIEdgeInsets = .zero) {
         translatesAutoresizingMaskIntoConstraints = false
         if let superviewTopAnchor = superview?.topAnchor {
